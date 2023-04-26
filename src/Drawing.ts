@@ -204,6 +204,7 @@ const applyStyle: <A>(
     O.fold(() => IO.of, f)
   )
 
+// Hardcoded parallel projection matrix
 const VT: Mat.Mat = [
   [1, 0, 0, 0],
   [0, 1, 0, 0],
@@ -229,7 +230,8 @@ const toCoords = (shape: Shape, transform: Transform3D): ReadonlyArray<Transform
     RA.map(RNEA.fromReadonlyArray),
     RA.compact,
     RA.map(RNEA.map(RA.append(1))),
-    RA.map(Mat.mul(transform))
+    RA.map(Mat.mul(transform)),
+    RA.map(Mat.mul(VT))
   )
 
 export const render: (drawing: Drawing) => C.Render<CanvasRenderingContext2D> = drawing => {
