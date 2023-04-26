@@ -1,3 +1,3 @@
-# drawing3d
+# canvas3d
 
-a fork of [graphics-ts](https://github.com/gcanti/graphics-ts) that implements 3d gfx support.
+an experimental fork of [graphics-ts](https://github.com/gcanti/graphics-ts) that implements 3d gfx support.
