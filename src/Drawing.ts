@@ -107,7 +107,13 @@ export interface FillStyle {
 export interface OutlineStyle {
   readonly color: O.Option<Color>
   readonly lineWidth: O.Option<number>
+  readonly lineCap: O.Option<LineCap>
+  readonly lineJoin: O.Option<LineJoin>
 }
+
+export type LineCap = 'butt' | 'round' | 'square'
+
+export type LineJoin = 'bevel' | 'miter' | 'round'
 
 export interface Outline {
   readonly _tag: 'Outline'
@@ -118,11 +124,29 @@ export interface Outline {
 export const outlineColor: (color: Color) => OutlineStyle = c => ({
   color: O.some(c),
   lineWidth: O.none,
+  lineCap: O.none,
+  lineJoin: O.none,
 })
 
 export const lineWidth: (lineWidth: number) => OutlineStyle = w => ({
   color: O.none,
   lineWidth: O.some(w),
+  lineCap: O.none,
+  lineJoin: O.none,
+})
+
+export const lineCap: (lineCap: LineCap) => OutlineStyle = w => ({
+  color: O.none,
+  lineCap: O.some(w),
+  lineWidth: O.none,
+  lineJoin: O.none,
+})
+
+export const lineJoin: (lineJoin: LineJoin) => OutlineStyle = w => ({
+  color: O.none,
+  lineJoin: O.some(w),
+  lineWidth: O.none,
+  lineCap: O.none,
 })
 
 export const fill: (shape: Shape, style: FillStyle) => Drawing = (shape, style) => ({
@@ -147,6 +171,8 @@ export type Drawing = Outline | Fill | Many | Translate | Rotate | Scale
 
 const readonlyArrayMonoidDrawing = RA.getMonoid<Drawing>()
 const getFirstMonoidColor = O.getMonoid<Color>(first())
+const getFirstMonoidLineCap = O.getMonoid<LineCap>(first())
+const getFirstMonoidLineJoin = O.getMonoid<LineJoin>(first())
 const getFirstMonoidNumber = O.getMonoid<number>(first())
 
 export const monoidFillStyle = M.struct<FillStyle>({
@@ -156,6 +182,8 @@ export const monoidFillStyle = M.struct<FillStyle>({
 export const monoidOutlineStyle = M.struct<OutlineStyle>({
   color: getFirstMonoidColor,
   lineWidth: getFirstMonoidNumber,
+  lineCap: getFirstMonoidLineCap,
+  lineJoin: getFirstMonoidLineJoin,
 })
 
 export const monoidDrawing: M.Monoid<Drawing> = {
@@ -258,6 +286,8 @@ export const render: (drawing: Drawing) => C.Render<CanvasRenderingContext2D> = 
           pipe(
             applyStyle(d.style.color, flow(toCss, C.setStrokeStyle)),
             RIO.chain(() => applyStyle(d.style.lineWidth, C.setLineWidth)),
+            RIO.chain(() => applyStyle(d.style.lineCap, C.setLineCap)),
+            RIO.chain(() => applyStyle(d.style.lineJoin, C.setLineJoin)),
             RIO.chain(() =>
               pipe(
                 C.beginPath,
