@@ -94,6 +94,12 @@ export const many: (drawings: ReadonlyArray<Drawing>) => Drawing = drawings => (
   drawings,
 })
 
+export interface Clipped {
+  readonly _tag: 'Clipped'
+  readonly shape: Shape
+  readonly drawing: Drawing
+}
+
 export interface Fill {
   readonly _tag: 'Fill'
   readonly shape: Shape
@@ -149,6 +155,12 @@ export const lineJoin: (lineJoin: LineJoin) => OutlineStyle = w => ({
   lineCap: O.none,
 })
 
+export const clipped: (shape: Shape, drawing: Drawing) => Drawing = (shape, drawing) => ({
+  _tag: 'Clipped',
+  shape,
+  drawing,
+})
+
 export const fill: (shape: Shape, style: FillStyle) => Drawing = (shape, style) => ({
   _tag: 'Fill',
   shape,
@@ -163,7 +175,7 @@ export const outline: (shape: Shape, style: OutlineStyle) => Drawing = (shape, s
   style,
 })
 
-export type Drawing = Outline | Fill | Many | Translate | Rotate | Scale
+export type Drawing = Clipped | Outline | Fill | Many | Translate | Rotate | Scale
 
 // -------------------------------------------------------------------------------------
 // instances
@@ -310,6 +322,15 @@ export const render: (drawing: Drawing) => C.Render<CanvasRenderingContext2D> = 
               )
             ),
             RIO.chain(() => RIO.ask())
+          )
+        )
+      case 'Clipped':
+        return C.withContext(
+          pipe(
+            C.beginPath,
+            RIO.chain(() => traverseReaderIO(toCoords(d.shape, t), renderSubPath)),
+            RIO.chain(() => C.clip()),
+            RIO.chain(() => go(t)(d.drawing))
           )
         )
     }
