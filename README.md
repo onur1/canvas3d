@@ -1,3 +1,3 @@
-# drawing3d
+# graphics3d-ts
 
-a fork of [graphics-ts](https://github.com/gcanti/graphics-ts) that implements simple 3d rendering support.
+A fork of [graphics-ts](https://github.com/gcanti/graphics-ts) that implements simple 3d rendering support.
